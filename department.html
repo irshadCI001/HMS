@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Departments</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-image: url('/images/department.avif');
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      min-height: 100vh;
+      color: black;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      position: relative;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(255, 255, 255, 0.5);
+      z-index: -1;
+    }
+
+    h1 {
+      font-size: 32px;
+      margin-bottom: 10px;
+      color: black;
+    }
+
+    h1::after {
+      content: "";
+      display: block;
+      width: 100px;
+      height: 2px;
+      background-color: black;
+      margin: 8px auto;
+    }
+
+    .departments {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      max-width: 1000px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .card {
+      border: 2px solid black;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      color: black;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      transition: transform 0.2s;
+    }
+
+    .card h2 {
+      font-size: 18px;
+      margin-bottom: 10px;
+      color: black;
+    }
+
+    .card p {
+      font-size: 14px;
+      color: black;
+    }
+
+    .card a {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 5px 10px;
+      border: 1px solid black;
+      background: transparent;
+      color: black;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+
+    .card a:hover {
+      background-color: rgba(0, 0, 0, 0.1);
+    }
+
+    .back-button {
+      display: inline-block;
+      margin: 20px;
+      padding: 10px 20px;
+      color: black;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: bold;
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background-color: rgba(255, 255, 255, 0.7);
+    }
+  </style>
+</head>
+<body>
+  <a href="home.html" class="back-button">← Back</a>
+  <h1>Departments</h1>
+  <div class="departments">
+    <div class="card">
+      <h2>Emergency</h2>
+      <p>Delivering 24/7 urgent care for critical injuries and illnesses with rapid response and life-saving treatments.</p>
+      <a href="emergency.html">Read More</a>
+    </div>
+    <div class="card">
+      <h2>Fertility Care</h2>
+      <p>Our fertility specialists provide comprehensive infertility treatments, including IVF and ICSI.</p>
+      <a href="fertility.html">Read More</a>
+    </div>
+    <div class="card">
+      <h2>Obstetrics & Gynaecology</h2>
+      <p>Expert care in pregnancy, childbirth, and women's reproductive health.</p>
+      <a href="obstetrics.html">Read More</a>
+    </div>
+    <div class="card">
+      <h2>Gynec Laparoscopy</h2>
+      <p>Minimally invasive surgical solutions for women’s health issues.</p>
+      <a href="Gynec.html">Read More</a>
+    </div>
+    <div class="card">
+      <h2>Orthopedics</h2>
+      <p>Expert care for fractures, joint problems, and musculoskeletal disorders.</p>
+      <a href="ortho.html">Read More</a>
+    </div>
+    <div class="card">
+      <h2>Neurology</h2>
+      <p>Advanced diagnosis and treatment for brain, spine, and nerve conditions.</p>
+      <a href="Neurology.html">Read More</a>
+    </div>
+    <div class="card">
+      <h2>Pediatrics</h2>
+      <p>Specialized medical care for infants, children, and adolescents.</p>
+      <a href="pediatrics.html">Read More</a>
+    </div>
+    <div class="card">
+      <h2>ENT</h2>
+      <p>Treatment for hearing issues, sinus problems, and voice disorders.</p>
+      <a href="ENT.html">Read More</a>
+    </div>
+    <div class="card">
+      <h2>Radiology</h2>
+      <p>State-of-the-art imaging technology for accurate diagnostics.</p>
+      <a href="Radiology.html">Read More</a>
+    </div>
+    <div class="card">
+      <h2>Anesthesiology</h2>
+      <p>Expert pain management and anesthesia services to ensure patient safety during surgeries and procedures.</p>
+      <a href="anesthesiologist.html">Read More</a>
+    </div>
+    <div class="card">
+      <h2>General Medicine</h2>
+      <p>Comprehensive primary care services for acute and chronic medical conditions across all age groups.</p>
+      <a href="physician.html">Read More</a>
+    </div>
+    <div class="card">
+      <h2>Dermatology</h2>
+      <p>Diagnosis and treatment for skin diseases, hair loss, allergies, and cosmetic dermatology.</p>
+      <a href="dermatologist.html">Read More</a>
+    </div>
+  </div>
+</body>
+</html>

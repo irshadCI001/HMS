@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login - Infinity Care Hospital</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #fff;
+      overflow: hidden;
+    }
+
+    .login-container {
+      background: rgba(0, 0, 0, 0.6);
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      animation: fadeIn 1s ease-out;
+    }
+
+    h2 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      color: #f9f9f9;
+      font-weight: 600;
+    }
+
+    label {
+      font-size: 1rem;
+      color: #ddd;
+      margin-bottom: 5px;
+      display: block;
+      text-align: left;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px 15px;
+      margin: 10px 0;
+      background-color: #fff;
+      color: #333;
+      font-size: 1rem;
+      border: none;
+      border-radius: 4px;
+      transition: all 0.3s;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      outline: none;
+      border: 2px solid #2575fc;
+      box-shadow: 0 0 5px rgba(37, 117, 252, 0.5);
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      background-color: #2575fc;
+      color: #fff;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    button:hover {
+      background-color: #1a5bbf;
+      transform: scale(1.05);
+    }
+
+    button:active {
+      background-color: #1a4a8e;
+    }
+
+    .footer {
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: #ddd;
+    }
+
+    .footer a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    /* Animation for the container */
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+  <script>
+    const adminCredentials = {
+      username: "admin123",  // Static Admin ID
+      password: "adminpass"  // Static Admin Password
+    };
+
+    // Function to handle admin login
+    function handleAdminLogin() {
+      const username = document.getElementById("admin-username").value;
+      const password = document.getElementById("admin-password").value;
+
+      if (username === adminCredentials.username && password === adminCredentials.password) {
+        // Redirect to doctor signup page after successful login
+        window.location.href = "adminDashboard.html";
+      } else {
+        alert("Incorrect admin credentials. Please try again.");
+      }
+    }
+  </script>
+</head>
+<body>
+  <div class="login-container">
+    <h2>Admin Login</h2>
+    <form onsubmit="event.preventDefault(); handleAdminLogin();">
+      <label for="admin-username">Admin Username</label>
+      <input type="text" id="admin-username" placeholder="Enter Admin ID" required />
+
+      <label for="admin-password">Admin Password</label>
+      <input type="password" id="admin-password" placeholder="Enter Admin Password" required />
+
+      <button type="submit">Login</button>
+    </form>
+    
+  </div>
+</body>
+</html>

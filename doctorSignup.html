@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doctor Signup - Infinity Care Hospital</title>
+  <link href="style.css" rel="stylesheet" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f8fb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .signup-container {
+      background: white;
+      padding: 30px 40px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      color: #444;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <div class="signup-container">
+    <h2>Doctor Signup</h2>
+    <form id="doctorForm">
+      <label for="name">Doctor Name</label>
+      <input type="text" id="name" placeholder="Enter doctor's name" required />
+      
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="Enter email address" required />
+      
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="Create password" required />
+      
+      <label for="department">Department</label>
+      <input type="text" id="department" placeholder="e.g., Cardiology" required />
+      
+      <button type="submit">Sign Up Doctor</button>
+    </form>
+  </div>
+
+  <script type="module">
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import { getFirestore, setDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA33Px0Y-ThP9Wv7MO68sWg4FaMP_Z89ZA",
+      authDomain: "hospital-management-203c5.firebaseapp.com",
+      projectId: "hospital-management-203c5",
+      storageBucket: "hospital-management-203c5.appspot.com",
+      messagingSenderId: "45154128779",
+      appId: "1:45154128779:web:bfcd7f5f00cea5d0c6d58e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    document.getElementById("doctorForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const department = document.getElementById("department").value;
+
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // Store data in Firestore under 'doctors' collection
+        await setDoc(doc(db, "doctors", user.uid), {
+          name: name,
+          email: email,
+          department: department, // Department field
+          role: "doctor", // Role to distinguish doctor
+          status: "active",
+          createdAt: new Date().toISOString()
+        });
+
+        alert("Doctor signed up successfully!");
+        window.location.href = "adminDashboard.html"; 
+      } catch (error) {
+        console.error("Error signing up doctor:", error);
+        alert("Error: " + error.message);
+      }
+    });
+  </script>
+</body>
+</html>

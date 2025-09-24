@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Login Form</title>
+    <style>
+        /* Your existing CSS here */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            display: flex;
+            height: 100vh;
+            justify-content: center;
+            align-items: center;
+            background-color: #f5f5f5;
+        }
+        .container {
+            display: flex;
+            width: 800px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            flex-direction: row-reverse;
+        }
+        .form-container {
+            flex: 1;
+            padding: 30px;
+        }
+        .form-container h2 {
+            margin-bottom: 15px;
+            font-size: 22px;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .btn {
+            width: 100%;
+            padding: 8px;
+            background: #00c4cc;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background: #0097a7;
+        }
+        .login-link {
+            margin-top: 10px;
+            text-align: center;
+        }
+        .login-link a {
+            color: #00c4cc;
+            text-decoration: none;
+        }
+        .image-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f5f5f5;
+            padding: 10px;
+        }
+        .image-container img {
+            height:110%;
+            max-width: 110%;
+            border-radius: 10px;
+        }
+    </style>
+    <script type="module" src="firebaseauth.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h2>Give Your Details</h2>
+            <form id="loginForm">
+                <div id="signInMessage" class="messageDiv" style="display: none;"></div>
+                <div class="form-group">
+                    <label for="Email">Email</label>
+                    <input type="text" id="Email" placeholder="Email" required>
+                </div>
+                <div class="form-group">
+                    <label for="Password">Password</label>
+                    <input type="password" id="Password" placeholder="Password" required>
+                </div>
+                <button type="button" class="btn" id="submitSignIn">Log In</button>
+                <div class="login-link">
+                    Don't have an account? <a href="signup.html">Signup</a>
+                </div>
+            </form>
+        </div>
+        <div class="image-container">
+            <img src="/images/Doctorr.png" alt="Doctor">
+        </div>
+    </div>
+</body>
+<script type="module" src="firebaseauth.js"></script>
+</html>
