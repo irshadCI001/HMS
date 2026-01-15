@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Doctor Dashboard - Infinity Care Hospital</title>
+  <link href="style.css" rel="stylesheet" />
+  <style>
+    /* Doctor table styles */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    .btn-add {
+      display: inline-block;
+      margin-bottom: 10px;
+      text-decoration: none;
+      color: white;
+      background-color: #4CAF50;
+      padding: 8px 16px;
+      border-radius: 4px;
+    }
+    .dashboard-container {
+      padding: 20px;
+      font-family: Arial, sans-serif;
+    }
+    .delete-btn, .save-time-btn {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .delete-btn:hover {
+      background-color: #c0392b;
+    }
+    .save-time-btn {
+      background-color: #3498db;
+      margin-left: 8px;
+    }
+    .save-time-btn:hover {
+      background-color: #2980b9;
+    }
+    input[type="time"] {
+      padding: 4px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    /* Offers section styles */
+    #offers-section {
+      margin-top: 50px;
+      border-top: 2px solid #4CAF50;
+      padding-top: 20px;
+    }
+    #offers-section h2 {
+      margin-bottom: 15px;
+    }
+    #newOfferText {
+      padding: 6px;
+      width: 300px;
+      margin-right: 10px;
+    }
+    .btn-add-offer {
+      padding: 6px 12px;
+      background-color: #4CAF50;
+      border: none;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-add-offer:hover {
+      background-color: #45a049;
+    }
+    .btn-edit, .btn-save, .btn-cancel, .btn-delete {
+      padding: 5px 10px;
+      margin-right: 5px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      color: white;
+    }
+    .btn-edit {
+      background-color: #3498db;
+    }
+    .btn-save {
+      background-color: #2ecc71;
+    }
+    .btn-cancel {
+      background-color: #7f8c8d;
+    }
+    .btn-delete {
+      background-color: #e74c3c;
+    }
+  </style>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, doc, deleteDoc, updateDoc, addDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA33Px0Y-ThP9Wv7MO68sWg4FaMP_Z89ZA",
+      authDomain: "hospital-management-203c5.firebaseapp.com",
+      projectId: "hospital-management-203c5",
+      storageBucket: "hospital-management-203c5.appspot.com",
+      messagingSenderId: "45154128779",
+      appId: "1:45154128779:web:bfcd7f5f00cea5d0c6d58e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // ----------- DOCTOR MANAGEMENT CODE ------------
+
+    async function deleteDoctor(docId, rowElement) {
+      if (confirm("Are you sure you want to delete this doctor?")) {
+        try {
+          await deleteDoc(doc(db, "doctors", docId));
+          rowElement.remove();
+          alert("Doctor deleted successfully.");
+        } catch (error) {
+          console.error("Error deleting doctor:", error);
+          alert("Failed to delete doctor.");
+        }
+      }
+    }
+
+    async function getDoctorDetails() {
+      const tableBody = document.getElementById("doctor-table-body");
+      tableBody.innerHTML = "";
+      try {
+        const querySnapshot = await getDocs(collection(db, "doctors"));
+        querySnapshot.forEach(async (docSnap) => {
+  let doctor = docSnap.data();
+  const uid = docSnap.id;
+
+  // ✅ Auto-switch to On Duty if Off Duty period has ended
+  if (doctor.status === "Off Duty" && doctor.offDutyEnd) {
+    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+    if (doctor.offDutyEnd < today) {
+      try {
+        await updateDoc(doc(db, "doctors", uid), {
+          status: "On Duty",
+          offDutyStart: "",
+          offDutyEnd: ""
+        });
+        doctor.status = "On Duty";
+        doctor.offDutyStart = "";
+        doctor.offDutyEnd = "";
+      } catch (error) {
+        console.error("Error auto-updating doctor:", error);
+      }
+    }
+  }
+
+          
+
+          const row = document.createElement("tr");
+
+          row.innerHTML = `
+            <td>${doctor.name}</td>
+            <td>${doctor.email}</td>
+            <td>${doctor.department}</td>
+            <td>
+              <select data-id="${uid}" class="status-select">
+                <option value="On Duty" ${doctor.status === "On Duty" ? "selected" : ""}>On Duty</option>
+                <option value="Off Duty" ${doctor.status === "Off Duty" ? "selected" : ""}>Off Duty</option>
+              </select>
+            </td>
+            <td>
+              ${doctor.status === "Off Duty" ? `
+                <div>From: ${doctor.offDutyStart || "N/A"}<br>To: ${doctor.offDutyEnd || "N/A"}</div>
+              ` : "N/A"}
+            </td>
+            <td>
+              <input type="time" class="start-time" value="${doctor.consultingStart || ''}" />
+              -
+              <input type="time" class="end-time" value="${doctor.consultingEnd || ''}" />
+              <button class="save-time-btn" data-id="${uid}">Save</button>
+            </td>
+            <td>${uid}</td>
+            <td><button class="delete-btn" data-id="${uid}">Delete</button></td>
+          `;
+
+          // Delete doctor
+          row.querySelector(".delete-btn").addEventListener("click", () => {
+            deleteDoctor(uid, row);
+          });
+
+          // Status change handler
+          row.querySelector(".status-select").addEventListener("change", async (e) => {
+            const newStatus = e.target.value;
+            const docId = e.target.getAttribute("data-id");
+            const updates = { status: newStatus };
+
+            if (newStatus === "Off Duty") {
+              const startDate = prompt("Enter Off Duty Start Date (YYYY-MM-DD):");
+              const endDate = prompt("Enter Off Duty End Date (YYYY-MM-DD):");
+              if (!startDate || !endDate) {
+                alert("Start and end dates are required.");
+                // Revert to previous status by reloading doctor details
+                getDoctorDetails();
+                return;
+              }
+              updates.offDutyStart = startDate;
+              updates.offDutyEnd = endDate;
+            } else {
+              updates.offDutyStart = "";
+              updates.offDutyEnd = "";
+            }
+
+            try {
+              await updateDoc(doc(db, "doctors", docId), updates);
+              alert("Doctor status updated.");
+              getDoctorDetails(); // Refresh table
+            } catch (error) {
+              console.error("Error updating status:", error);
+              alert("Failed to update doctor status.");
+            }
+          });
+
+          // Consulting time save handler
+          row.querySelector(".save-time-btn").addEventListener("click", async () => {
+            const startTime = row.querySelector(".start-time").value;
+            const endTime = row.querySelector(".end-time").value;
+
+            if (!startTime || !endTime) {
+              alert("Please enter both start and end times.");
+              return;
+            }
+
+            try {
+              await updateDoc(doc(db, "doctors", uid), {
+                consultingStart: startTime,
+                consultingEnd: endTime,
+              });
+              alert("Consulting time updated.");
+            } catch (error) {
+              console.error("Error updating consulting time:", error);
+              alert("Failed to update consulting time.");
+            }
+          });
+
+          tableBody.appendChild(row);
+        });
+      } catch (error) {
+        console.error("Error getting doctor details:", error);
+        alert("There was an error fetching doctor details.");
+      }
+    }
+
+    // ----------- OFFERS MANAGEMENT CODE ------------
+
+    const offersCollection = collection(db, "offers");
+    const offersTableBodyId = "offers-table-body";
+    const newOfferInputId = "newOfferText";
+
+    // Escape HTML helper
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    async function loadOffers() {
+      const offersTableBody = document.getElementById(offersTableBodyId);
+      offersTableBody.innerHTML = 'Loading offers...';
+      try {
+        const snapshot = await getDocs(offersCollection);
+        offersTableBody.innerHTML = '';
+        if (snapshot.empty) {
+          offersTableBody.innerHTML = `<tr><td colspan="2">No offers found.</td></tr>`;
+          return;
+        }
+        snapshot.forEach(docSnap => {
+          const offer = docSnap.data();
+          const id = docSnap.id;
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="offer-text">${escapeHtml(offer.text)}</td>
+            <td>
+              <button class="btn-edit">Edit</button>
+              <button class="btn-delete">Delete</button>
+            </td>
+          `;
+
+          // Edit button
+          tr.querySelector('.btn-edit').addEventListener('click', () => {
+            enterEditMode(tr, id, offer.text);
+          });
+
+          // Delete button
+          tr.querySelector('.btn-delete').addEventListener('click', async () => {
+            if (confirm('Are you sure you want to delete this offer?')) {
+              try {
+                await deleteDoc(doc(db, "offers", id));
+                alert('Offer deleted.');
+                loadOffers();
+              } catch (error) {
+                console.error('Error deleting offer:', error);
+                alert('Failed to delete offer.');
+              }
+            }
+          });
+
+          offersTableBody.appendChild(tr);
+        });
+      } catch (error) {
+        console.error('Error loading offers:', error);
+        offersTableBody.innerHTML = `<tr><td colspan="2">Failed to load offers.</td></tr>`;
+      }
+    }
+
+    // Add new offer
+    async function addOffer() {
+      const input = document.getElementById(newOfferInputId);
+      const text = input.value.trim();
+      if (!text) {
+        alert('Please enter offer text.');
+        return;
+      }
+      try {
+        await addDoc(offersCollection, { text });
+        alert('Offer added.');
+        input.value = '';
+        loadOffers();
+      } catch (error) {
+        console.error('Error adding offer:', error);
+        alert('Failed to add offer.');
+      }
+    }
+
+    // Enter edit mode for an offer row
+    function enterEditMode(row, id, currentText) {
+      const td = row.querySelector('.offer-text');
+      const actionsTd = row.querySelector('td:last-child');
+
+      td.innerHTML = `<input type="text" value="${currentText}" style="width: 100%;" />`;
+
+      actionsTd.innerHTML = `
+        <button class="btn-save">Save</button>
+        <button class="btn-cancel">Cancel</button>
+      `;
+
+      const input = td.querySelector('input');
+      const btnSave = actionsTd.querySelector('.btn-save');
+      const btnCancel = actionsTd.querySelector('.btn-cancel');
+
+      btnSave.addEventListener('click', async () => {
+        const newText = input.value.trim();
+        if (!newText) {
+          alert('Offer text cannot be empty.');
+          return;
+        }
+        try {
+          await updateDoc(doc(db, "offers", id), { text: newText });
+          alert('Offer updated.');
+          loadOffers();
+        } catch (error) {
+          console.error('Error updating offer:', error);
+          alert('Failed to update offer.');
+        }
+      });
+
+      btnCancel.addEventListener('click', () => {
+        loadOffers();
+      });
+    }
+
+    window.onload = () => {
+      getDoctorDetails();
+      loadOffers();
+
+      document.getElementById("addOfferBtn").addEventListener("click", addOffer);
+    };
+  </script>
+</head>
+<body>
+  <div class="dashboard-container">
+    <h1>Admin Doctor Dashboard - Infinity Care Hospital</h1>
+    <section id="offers-section">
+      <h2>Manage Hospital Offers</h2>
+
+      <input type="text" id="newOfferText" placeholder="Enter new offer here..." />
+      <button id="addOfferBtn" class="btn-add-offer">Add Offer</button>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Offer Text</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="offers-table-body">
+          <!-- Offers will be loaded here -->
+        </tbody>
+      </table>
+    </section>
+
+    <a href="adddoctor.html" class="btn-add">Add Doctor</a>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Doctor Name</th>
+          <th>Email</th>
+          <th>Department</th>
+          <th>Status</th>
+          <th>Off Duty Period</th>
+          <th>Consulting Time</th>
+          <th>UID</th>
+          <th>Delete</th>
+        </tr>
+      </thead>
+      <tbody id="doctor-table-body"></tbody>
+    </table>
+
+    <!-- ===== OFFERS MANAGEMENT SECTION ===== -->
+    
+  </div>
+</body>
+</html>
