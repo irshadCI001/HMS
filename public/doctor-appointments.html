@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Doctor's Appointments</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f8fb;
+      margin: 0;
+      padding: 20px;
+    }
+    .appointments-container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 800px;
+      margin: auto;
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+    label {
+      display: block;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+    input[type="date"] {
+      padding: 8px;
+      margin-top: 5px;
+      margin-bottom: 20px;
+      width: 100%;
+      max-width: 300px;
+      display: block;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+    td {
+      color: #333;
+    }
+    button.approve-btn {
+      background-color: #4CAF50;
+      border: none;
+      color: white;
+      padding: 5px 10px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .approve-btn:disabled {
+      background-color: #ddd;
+    }
+    input[type="checkbox"] {
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="appointments-container">
+    <h2 id="doctorHeading">Doctor's Appointments</h2>
+
+    <label for="filterDate">Filter by Date:</label>
+    <input type="date" id="filterDate" />
+
+    <button id="approveSelected" class="approve-btn" disabled>Approve Selected</button>
+
+    <table id="appointmentsTable">
+      <thead>
+        <tr>
+          <th>Select</th>
+          <th>Patient Name</th>
+          <th>Phone Number</th>
+          <th>Gender</th>
+          <th>Age</th>
+          <th>Appointment Date</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Dynamic appointment rows will be added here -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Firebase Modular SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getFirestore, collection, query, where, getDocs, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA33Px0Y-ThP9Wv7MO68sWg4FaMP_Z89ZA",
+      authDomain: "hospital-management-203c5.firebaseapp.com",
+      projectId: "hospital-management-203c5",
+      storageBucket: "hospital-management-203c5.appspot.com",
+      messagingSenderId: "45154128779",
+      appId: "1:45154128779:web:bfcd7f5f00cea5d0c6d58e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      try {
+        const docRef = doc(db, "doctors", user.uid);
+        const docSnap = await getDoc(docRef);
+        let doctorName = "Doctor";
+        if (docSnap.exists()) {
+          doctorName = docSnap.data().name || "Doctor";
+          if (!doctorName.toLowerCase().startsWith("dr")) {
+            doctorName = "Dr. " + doctorName;
+          }
+        }
+        document.getElementById("doctorHeading").innerText = `${doctorName}'s Appointments`;
+
+        const q = query(collection(db, "appointments"), where("doctorUID", "==", user.uid));
+        const snapshot = await getDocs(q);
+        const allAppointments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+        const tableBody = document.getElementById("appointmentsTable").getElementsByTagName("tbody")[0];
+        const filterDateInput = document.getElementById("filterDate");
+        const approveSelectedBtn = document.getElementById("approveSelected");
+
+        // Function to render the appointments
+        function renderAppointments(filteredAppointments) {
+          tableBody.innerHTML = "";
+          filteredAppointments.forEach((a) => {
+            const isPending = (a.status || "Pending") === "Pending";
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+              <td><input type="checkbox" class="appointment-checkbox" data-id="${a.id}" ${isPending ? "" : "disabled"} /></td>
+              <td>${a.patientName}</td>
+              <td>${a.phoneNumber}</td>
+              <td>${a.gender}</td>
+              <td>${a.age}</td>
+              <td>${a.date}</td>
+              <td>${a.status || "Pending"}</td>
+            `;
+            tableBody.appendChild(row);
+          });
+
+          // Enable/disable approve button based on selection
+          const checkboxes = document.querySelectorAll(".appointment-checkbox");
+          const selectedCheckboxes = Array.from(checkboxes).filter(checkbox => checkbox.checked);
+          approveSelectedBtn.disabled = selectedCheckboxes.length === 0;
+
+          // Event listener for checkboxes
+          checkboxes.forEach(checkbox => {
+            checkbox.addEventListener("change", () => {
+              const selectedCheckboxes = Array.from(checkboxes).filter(checkbox => checkbox.checked);
+              approveSelectedBtn.disabled = selectedCheckboxes.length === 0;
+            });
+          });
+        }
+
+        // Function to approve selected appointments
+        async function approveSelectedAppointments() {
+          const selectedCheckboxes = Array.from(document.querySelectorAll(".appointment-checkbox"))
+            .filter(checkbox => checkbox.checked);
+
+          for (const checkbox of selectedCheckboxes) {
+            const appointmentId = checkbox.getAttribute("data-id");
+            try {
+              await updateDoc(doc(db, "appointments", appointmentId), { status: "Approved" });
+              // Update the status locally as well
+              allAppointments.forEach(app => {
+                if (app.id === appointmentId) {
+                  app.status = "Approved";
+                }
+              });
+              renderAppointments(allAppointments.filter(filterFunc));
+            } catch (err) {
+              console.error("Error updating appointment:", err);
+            }
+          }
+        }
+
+        // Initial render of appointments
+        function filterFunc(app) {
+          const selectedDate = filterDateInput.value;
+          return selectedDate ? app.date === selectedDate : true;
+        }
+
+        renderAppointments(allAppointments);
+
+        // Event listener for filter by date
+        filterDateInput.addEventListener("change", () => {
+          renderAppointments(allAppointments.filter(filterFunc));
+        });
+
+        // Event listener for approving selected appointments
+        approveSelectedBtn.addEventListener("click", approveSelectedAppointments);
+
+      } catch (err) {
+        console.error("Error loading data:", err);
+      }
+    });
+  </script>
+
+</body>
+</html>
